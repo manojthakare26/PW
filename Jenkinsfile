@@ -1,36 +1,19 @@
 pipeline {
-  agent { 
-    docker { 
-      image 'mcr.microsoft.com/playwright:v1.17.2-focal'
-    } 
-  }
-  stages {
-    stage('install playwright') {
-      steps {
-        sh '''
-          npm i -D @playwright/test
-          npx playwright install
-        '''
-      }
-    }
-    stage('help') {
-      steps {
-        sh 'npx playwright test --help'
-      }
-    }
-    stage('test') {
-      steps {
-        sh '''
-          npx playwright test --list
-          npx playwright test
-        '''
-      }
-      post {
-        success {
-          archiveArtifacts(artifacts: 'homepage-*.png', followSymlinks: false)
-          sh 'rm -rf *.png'
+    agent any
+    stages {
+        stage('Setup') {
+            steps {
+                // Install Node.js and dependencies
+                sh 'npm install'
+                sh 'npx playwright install --with-deps'
+            }
         }
-      }
+        stage('Run Playwright Tests') {
+            steps {
+                // Run Playwright tests
+                sh 'npx playwright test'
+            }
+        }
+        // Add more stages as needed (e.g., reporting, deployment)
     }
-  }
 }
